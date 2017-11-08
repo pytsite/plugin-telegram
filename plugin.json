@@ -1,0 +1,21 @@
+{
+  "name": "telegram",
+  "version": "0.1",
+  "description": {
+    "en": "Telegram API",
+    "ru": "Telegram API",
+    "uk": "Telegram API"
+  },
+  "url": "https://github.com/pytsite/plugin-telegram",
+  "author": {
+    "name": "Alexander Shepetko",
+    "email": "a@shepetko.com",
+    "url": "https://shepetko.com"
+  },
+  "requires": {
+    "packages": [
+      "requests"
+    ],
+    "plugins": []
+  }
+}
