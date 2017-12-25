@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 0.2.1 (2017-12-25)
+
+Refactored.
+
+
 ### 0.2 (2017-12-07)
 
 Implemented part of the Telegram API.

@@ -13,9 +13,8 @@ class Error(Exception):
 
 
 class CommandExecutionError(Error):
-    def __init__(self, msg: str, reset_bot_state: bool = False, reply_markup: _ReplyMarkup = None):
+    def __init__(self, msg: str, reply_markup: _ReplyMarkup = None):
         self.msg = msg
-        self.reset_bot_state = reset_bot_state
         self.reply_markup = reply_markup
 
     def __str__(self) -> str:

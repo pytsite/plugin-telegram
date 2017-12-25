@@ -2,6 +2,7 @@
 """
 import json as _json
 from typing import Union as _Union
+from werkzeug.utils import cached_property as _cached_property
 from pytsite import cache as _cache, reg as _reg, logger as _logger, lang as _lang
 from . import _api, types as _types, reply_markup as _reply_markup, error as _error
 
@@ -24,7 +25,8 @@ class Bot:
         self._me = None
         self._sender = None  # type: _types.User
         self._chat = None  # type: _types.Chat
-        self._last_message_id = None  # tyep: int
+        self._last_message_id = None  # type: int
+        self._command_aliases = {}
 
     @property
     def token(self) -> str:
@@ -32,13 +34,13 @@ class Bot:
         """
         return self._token
 
-    @property
+    @_cached_property
     def id(self) -> int:
         """Get bot's ID
         """
         return self.get_me().id
 
-    @property
+    @_cached_property
     def username(self) -> str:
         """Get bot's username
         """
@@ -70,6 +72,66 @@ class Bot:
             raise ValueError('Last message ID is not set yet')
 
         return self._last_message_id
+
+    @property
+    def command_name(self) -> str:
+        return self.get_var('_command')
+
+    @command_name.setter
+    def command_name(self, value: str):
+        self.set_var('_command', value)
+
+    @property
+    def command_step(self) -> int:
+        """Get current command's step
+        """
+        return self.get_var('_command_{}_step'.format(self.command_name))
+
+    @command_step.setter
+    def command_step(self, value: int):
+        """Set current command's step
+        """
+        self.set_var('_command_{}_step'.format(self.command_name), value)
+
+    def set_command_alias(self, command: str, alias: str):
+        if alias in self._command_aliases:
+            raise ValueError("Command alias '{}' already defined")
+
+        self._command_aliases[alias] = command
+
+    def get_var(self, key: str):
+        """Get a value of a state variable
+        """
+        try:
+            return _cache_pool.get_hash_item('{}.{}'.format(self.sender.id, self.chat.id), key)
+        except _cache.error.KeyNotExist:
+            pass
+
+    def set_var(self, key: str, value):
+        """Set a value of a state variable
+        """
+        k = '{}.{}'.format(self.sender.id, self.chat.id)
+        try:
+            _cache_pool.put_hash_item(k, key, value)
+        except _cache.error.KeyNotExist:
+            _cache_pool.put_hash(k, {key: value})
+
+        return self
+
+    def del_var(self, key: str):
+        """Delete a state variable
+        """
+        try:
+            _cache_pool.rm_hash_item('{}.{}'.format(self.sender.id, self.chat.id), key)
+        except _cache.error.KeyNotExist:
+            pass
+
+        return self
+
+    def reset(self):
+        """Reset entire bot's state
+        """
+        _cache_pool.rm('{}.{}'.format(self.sender.id, self.chat.id))
 
     def process_update(self, update: _types.Update):
         """Process incoming update from Telegram
@@ -118,60 +180,25 @@ class Bot:
         """
         return _api.request(self._token, endpoint, params, data, method)
 
-    def get_var(self, key: str):
-        """Get a value of a state variable
-        """
-        try:
-            return _cache_pool.get_hash_item('{}.{}'.format(self.sender.id, self.chat.id), key)
-        except _cache.error.KeyNotExist:
-            pass
-
-    def set_var(self, key: str, value):
-        """Set a value of a state variable
-        """
-        k = '{}.{}'.format(self.sender.id, self.chat.id)
-        try:
-            _cache_pool.put_hash_item(k, key, value)
-        except _cache.error.KeyNotExist:
-            _cache_pool.put_hash(k, {key: value})
-
-        return self
-
-    def del_var(self, key: str):
-        """Delete a state variable
-        """
-        _cache_pool.rm_hash_item('{}.{}'.format(self.sender.id, self.chat.id), key)
-
-        return self
-
-    def finish_command(self):
-        """Mark current command as finished
-        """
-        self.del_var('_command')
-
-        return self
-
-    def reset(self):
-        """Clear entire state
-        """
-        _cache_pool.rm('{}.{}'.format(self.sender.id, self.chat.id))
-
-        return self
-
     def _process_private_message(self, msg: _types.Message):
         """Process an incoming private message
         """
         # New command received
-        if msg.text and msg.text.startswith('/'):
-            self.reset()
-            self.run_command(msg.text[1:].split(' ')[0], msg)
+        if msg.text and (msg.text.startswith('/') or msg.text in self._command_aliases):
+            if msg.text.startswith('/'):
+                cmd_name = msg.text[1:].split(' ')[0]
+                if cmd_name in self._command_aliases:
+                    self.call_command(self._command_aliases[cmd_name], msg, 0)
+                else:
+                    self.call_command(cmd_name, msg, 0)
+            else:
+                self.call_command(self._command_aliases[msg.text], msg, 0)
 
         # Simple message received
         else:
             # Try to restore current command from state
-            command = self.get_var('_command')
-            if command:
-                self.run_command(command, msg)
+            if self.command_name:
+                self.call_command(self.command_name, msg)
 
             # No current command, simply handle message
             else:
@@ -179,17 +206,25 @@ class Bot:
 
     def _process_callback_query(self, query: _types.CallbackQuery):
         # Try to restore current command from state
-        command = self.get_var('_command')
-        if command:
-            self.run_command(command, query)
-
+        if self.command_name:
+            self.call_command(self.command_name, query)
         else:
             self.handle_private_message(query)
 
-    def run_command(self, name: str, msg: _Union[_types.Message, _types.CallbackQuery]):
+    def finish_command(self):
+        """Clear command related state variables
+        """
+        self.command_name = None
+        self.command_step = 0
+
+        return self
+
+    def call_command(self, name: str, msg: _Union[_types.Message, _types.CallbackQuery], step: int = None):
         """Process an incoming command
         """
-        self.set_var('_command', name)
+        self.command_name = name
+        if step is not None:
+            self.command_step = step
 
         try:
             cmd_method = 'cmd_{}'.format(name)
@@ -199,11 +234,7 @@ class Bot:
                 self.handle_command(name, msg)
 
         except _error.CommandExecutionError as e:
-            if e.reset_bot_state:
-                self.reset()
-
             _logger.error(e)
-
             self.send_message(e.msg, reply_markup=e.reply_markup)
 
     def handle_private_message(self, msg: _Union[_types.Message, _types.CallbackQuery]):
@@ -260,7 +291,7 @@ class Bot:
 
         return self._me
 
-    def send_message(self, text: str, chat_id:  _Union[int, str] = None, parse_mode: str = 'HTML',
+    def send_message(self, text: str, chat_id: _Union[int, str] = None, parse_mode: str = 'HTML',
                      disable_web_page_preview: bool = False, disable_notification: bool = False,
                      reply_to_message_id: int = None, reply_markup: _reply_markup.ReplyMarkup = None) -> _types.Message:
         """Send text message
@@ -268,7 +299,7 @@ class Bot:
         https://core.telegram.org/bots/api#sendmessage
         """
         if parse_mode not in ('HTML', 'Markdown'):
-            parse_mode = 'HTML'
+            parse_mode = 'Markdown'
 
         msg = _types.Message(self._request('sendMessage', {
             'chat_id': chat_id or self.chat.id,
@@ -284,7 +315,7 @@ class Bot:
 
         return msg
 
-    def edit_message_text(self, text: str, chat_id:  _Union[int, str] = None, message_id: int = None,
+    def edit_message_text(self, text: str, chat_id: _Union[int, str] = None, message_id: int = None,
                           inline_message_id: str = None, parse_mode: str = 'HTML',
                           disable_web_page_preview: bool = False, reply_markup: _reply_markup.ReplyMarkup = None):
         """Edit text of a message
@@ -305,7 +336,7 @@ class Bot:
             'reply_markup': _json.dumps(reply_markup.as_jsonable()) if reply_markup else '',
         })
 
-    def edit_message_caption(self, caption: str = None, chat_id:  _Union[int, str] = None, message_id: int = None,
+    def edit_message_caption(self, caption: str = None, chat_id: _Union[int, str] = None, message_id: int = None,
                              inline_message_id: str = None, reply_markup: _reply_markup.ReplyMarkup = None):
         """Edit caption of a message
 
@@ -319,7 +350,7 @@ class Bot:
             'reply_markup': _json.dumps(reply_markup.as_jsonable()) if reply_markup else '',
         })
 
-    def edit_message_reply_markup(self, chat_id:  _Union[int, str] = None, message_id: int = None,
+    def edit_message_reply_markup(self, chat_id: _Union[int, str] = None, message_id: int = None,
                                   inline_message_id: str = None, reply_markup: _reply_markup.ReplyMarkup = None):
         """Edit reply markup of a message
 
@@ -332,7 +363,7 @@ class Bot:
             'reply_markup': _json.dumps(reply_markup.as_jsonable()) if reply_markup else '',
         })
 
-    def delete_message(self, message_id: int, chat_id:  _Union[int, str] = None):
+    def delete_message(self, chat_id: _Union[int, str], message_id: int):
         """Delete a message
 
         https://core.telegram.org/bots/api#deletemessage
@@ -342,7 +373,7 @@ class Bot:
             'message_id': message_id,
         })
 
-    def send_photo(self, photo_file_id: str, chat_id:  _Union[int, str] = None, caption: str = None,
+    def send_photo(self, photo_file_id: str, chat_id: _Union[int, str] = None, caption: str = None,
                    disable_notification: bool = None, reply_to_message_id: int = None,
                    reply_markup: _reply_markup.ReplyMarkup = None) -> _types.Message:
         """Send a photo
