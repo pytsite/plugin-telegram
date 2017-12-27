@@ -462,3 +462,15 @@ class Bot:
 
         except _error.ChatNotFound:
             return False
+
+    def get_file(self, file_id: str) -> _types.File:
+        try:
+            return _types.File(self._request('getFile', {
+                'file_id': file_id,
+            }))
+        except _error.ApiRequestError as e:
+            _logger.error(e)
+            raise _error.FileNotFound(file_id)
+
+    def get_file_url(self, file: _types.File) -> str:
+        return 'https://api.telegram.org/file/bot{}/{}'.format(self._token, file.file_path)

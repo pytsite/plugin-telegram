@@ -40,6 +40,27 @@ class Array(TelegramType):
         return self._items[index]
 
 
+class File(TelegramType):
+    def __init__(self, data: dict):
+        super().__init__(data)
+
+        self._file_id = data['file_id']  # type: str
+        self._file_size = data['file_size']  # type: _Optional[int]
+        self._file_path = data['file_path']  # type: _Optional[str]
+
+    @property
+    def file_id(self) -> str:
+        return self._file_id
+
+    @property
+    def file_size(self) -> _Optional[int]:
+        return self._file_size
+
+    @property
+    def file_path(self) -> _Optional[str]:
+        return self._file_path
+
+
 class PhotoSize(TelegramType):
     def __init__(self, data: dict):
         super().__init__(data)

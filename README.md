@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 0.3 (2017-12-27)
+
+New method: `Bot.get_file()`.
+
+
 ### 0.2.1 (2017-12-25)
 
 Refactored.

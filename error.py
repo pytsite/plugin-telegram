@@ -62,6 +62,14 @@ class BotAlreadyRegistered(Error):
         return "Bot with UID '{}' is already registered".format(self._uid)
 
 
+class FileNotFound(ApiRequestError):
+    def __init__(self, file_id: str):
+        self._id = file_id
+
+    def __str__(self) -> str:
+        return "File with ID '{}' is not found".format(self._id)
+
+
 class ChatNotFound(ApiRequestError):
     def __init__(self, chat_id: str):
         self._id = chat_id
