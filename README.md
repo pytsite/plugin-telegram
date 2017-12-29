@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 0.3.1 (2017-12-29)
+
+plugin.json fixed.
+
+
 ### 0.3 (2017-12-27)
 
 New method: `Bot.get_file()`.

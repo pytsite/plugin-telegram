@@ -99,7 +99,7 @@ class Bot:
 
         self._command_aliases[alias] = command
 
-    def get_var(self, key: str):
+    def get_var(self, key: str, default = None):
         """Get a value of a state variable
         """
         try:
