@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 0.3.2 (2018-01-09)
+
+Missing bot exception handling.
+
+
 ### 0.3.1 (2017-12-29)
 
 plugin.json fixed.

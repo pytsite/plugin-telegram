@@ -93,8 +93,7 @@ class Keyboard(types.JSONable):
     def __len__(self):
         r = 0
         for row in self._buttons:
-            for btn in row:
-                r += 1
+            r += len(row)
 
         return r
 

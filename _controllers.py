@@ -1,8 +1,8 @@
 """PytSite Telegram Plugin Controllers
 """
 import json as _json
-from pytsite import routing as _routing
-from . import _api, types as _types
+from pytsite import routing as _routing, logger as _logger
+from . import _api, types as _types, error as _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,4 +14,7 @@ class PostHook(_routing.Controller):
     """
 
     def exec(self):
-        _api.dispense_bot(self.arg('bot_uid')).process_update(_types.Update(_json.loads(self.request.data)))
+        try:
+            _api.dispense_bot(self.arg('bot_uid')).process_update(_types.Update(_json.loads(self.request.data)))
+        except _error.BotNotRegistered as e:
+            _logger.warn(str(e))
