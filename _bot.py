@@ -3,7 +3,7 @@
 import json as _json
 from typing import Union as _Union
 from werkzeug.utils import cached_property as _cached_property
-from pytsite import cache as _cache, reg as _reg, logger as _logger, lang as _lang
+from pytsite import cache as _cache, reg as _reg, logger as _logger, lang as _lang, util as _util
 from . import _api, types as _types, reply_markup as _reply_markup, error as _error
 
 __author__ = 'Alexander Shepetko'
@@ -20,6 +20,7 @@ class Bot:
         if not token:
             raise ValueError('Empty token')
 
+        self._id = _util.md5_hex_digest(str(self.__class__))
         self._state_ttl = _reg.get('telegram.bot_state_ttl', 86400)
         self._token = token
         self._me = None
@@ -99,18 +100,18 @@ class Bot:
 
         self._command_aliases[alias] = command
 
-    def get_var(self, key: str, default = None):
+    def get_var(self, key: str, default=None):
         """Get a value of a state variable
         """
         try:
-            return _cache_pool.get_hash_item('{}.{}'.format(self.sender.id, self.chat.id), key)
+            return _cache_pool.get_hash_item('{}.{}'.format(self._id, self.chat.id), key)
         except _cache.error.KeyNotExist:
             pass
 
     def set_var(self, key: str, value):
         """Set a value of a state variable
         """
-        k = '{}.{}'.format(self.sender.id, self.chat.id)
+        k = '{}.{}'.format(self._id, self.chat.id)
         try:
             _cache_pool.put_hash_item(k, key, value)
         except _cache.error.KeyNotExist:
@@ -122,7 +123,7 @@ class Bot:
         """Delete a state variable
         """
         try:
-            _cache_pool.rm_hash_item('{}.{}'.format(self.sender.id, self.chat.id), key)
+            _cache_pool.rm_hash_item('{}.{}'.format(self._id, self.chat.id), key)
         except _cache.error.KeyNotExist:
             pass
 
@@ -131,7 +132,8 @@ class Bot:
     def reset(self):
         """Reset entire bot's state
         """
-        _cache_pool.rm('{}.{}'.format(self.sender.id, self.chat.id))
+        _cache_pool.rm('{}.{}'.format(self._id, self.chat.id))
+        _cache_pool.rm('{}.{}'.format(self._id, self.chat.id))
 
     def process_update(self, update: _types.Update):
         """Process incoming update from Telegram
@@ -317,7 +319,8 @@ class Bot:
 
     def edit_message_text(self, text: str, chat_id: _Union[int, str] = None, message_id: int = None,
                           inline_message_id: str = None, parse_mode: str = 'HTML',
-                          disable_web_page_preview: bool = False, reply_markup: _reply_markup.ReplyMarkup = None):
+                          disable_web_page_preview: bool = False,
+                          reply_markup: _reply_markup.ReplyMarkup = None) -> _types.Message:
         """Edit text of a message
 
         https://core.telegram.org/bots/api#editmessagetext
@@ -326,7 +329,7 @@ class Bot:
         if parse_mode not in ('HTML', 'Markdown'):
             parse_mode = 'HTML'
 
-        return self._request('editMessageText', {
+        return _types.Message(self._request('editMessageText', {
             'text': text,
             'chat_id': chat_id,
             'message_id': message_id,
@@ -334,7 +337,7 @@ class Bot:
             'parse_mode': parse_mode,
             'disable_web_page_preview': disable_web_page_preview,
             'reply_markup': _json.dumps(reply_markup.as_jsonable()) if reply_markup else '',
-        })
+        }))
 
     def edit_message_caption(self, caption: str = None, chat_id: _Union[int, str] = None, message_id: int = None,
                              inline_message_id: str = None, reply_markup: _reply_markup.ReplyMarkup = None):

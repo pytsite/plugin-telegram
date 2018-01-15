@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 0.3.3 (2018-01-15)
+
+- Exceptions handling fixed.
+- Cache keys error fixed.
+
+
 ### 0.3.2 (2018-01-09)
 
 Missing bot exception handling.
