@@ -104,9 +104,9 @@ class Bot:
         """Get a value of a state variable
         """
         try:
-            return _cache_pool.get_hash_item('{}.{}'.format(self._id, self.chat.id), key)
+            return _cache_pool.get_hash_item('{}.{}'.format(self._id, self.chat.id), key, default)
         except _cache.error.KeyNotExist:
-            pass
+            return default
 
     def set_var(self, key: str, value):
         """Set a value of a state variable

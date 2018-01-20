@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 0.3.4 (2018-01-20)
+
+`Bot.get_var()` default value usage fixed.
+
+
 ### 0.3.3 (2018-01-15)
 
 - Exceptions handling fixed.
