@@ -135,6 +135,8 @@ class Bot:
         _cache_pool.rm('{}.{}'.format(self._id, self.chat.id))
         _cache_pool.rm('{}.{}'.format(self._id, self.chat.id))
 
+        return self
+
     def process_update(self, update: _types.Update):
         """Process incoming update from Telegram
         """
@@ -301,7 +303,7 @@ class Bot:
         https://core.telegram.org/bots/api#sendmessage
         """
         if parse_mode not in ('HTML', 'Markdown'):
-            parse_mode = 'Markdown'
+            parse_mode = 'HTML'
 
         msg = _types.Message(self._request('sendMessage', {
             'chat_id': chat_id or self.chat.id,

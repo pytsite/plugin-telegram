@@ -158,8 +158,8 @@ class ReplyKeyboardMarkup(ReplyMarkup):
     https://core.telegram.org/bots/api#replykeyboardmarkup
     """
 
-    def __init__(self, keyboard: Keyboard, resize_keyboard: bool = True,
-                 one_time_keyboard: bool = True, selective: bool = False):
+    def __init__(self, keyboard: Keyboard, resize_keyboard: bool = True, one_time_keyboard: bool = True,
+                 selective: bool = False):
         self._keyboard = keyboard
         self._resize_keyboard = resize_keyboard
         self._one_time_keyboard = one_time_keyboard

@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 0.4 (2018-02-04)
+
+New API function added: `unregister_bot()`.
+
+
 ### 0.3.4 (2018-01-20)
 
 `Bot.get_var()` default value usage fixed.

@@ -4,13 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import plugman as _plugman
-
-if _plugman.is_installed(__name__):
-    # Public API
-    from . import error, types, reply_markup
-    from ._api import register_bot, dispense_bot
-    from ._bot import Bot
+# Public API
+from . import error, types, reply_markup
+from ._api import register_bot, unregister_bot, dispense_bot
+from ._bot import Bot
 
 
 def plugin_load():

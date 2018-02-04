@@ -27,10 +27,21 @@ def register_bot(token: str, bot_class: _Type, set_webhook: bool = True, max_con
     if not issubclass(bot_class, _bot.Bot):
         raise TypeError("{} expected, got {}".format(_bot.Bot.__class__, bot_class.__name__))
 
-    _BOTS[uid] = (bot_class, token)
+    _BOTS[uid] = (bot_class, token, set_webhook)
 
     if set_webhook:
         _set_webhook(token, uid, max_connections, allowed_updates)
+
+
+def unregister_bot(token: str):
+    if not token:
+        raise ValueError("Bot's token is not registered")
+
+    uid = _util.md5_hex_digest(_router.server_name() + token)
+    if uid in _BOTS:
+        if _BOTS[uid][2]:
+            _delete_webhook(token)
+        del _BOTS[uid]
 
 
 def dispense_bot(uid: str) -> _bot.Bot:

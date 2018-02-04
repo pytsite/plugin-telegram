@@ -1,10 +1,10 @@
 {
   "name": "telegram",
-  "version": "0.3.4",
+  "version": "0.4",
   "description": {
-    "en": "Telegram API",
-    "ru": "Telegram API",
-    "uk": "Telegram API"
+    "en": "Telegram",
+    "ru": "Telegram",
+    "uk": "Telegram"
   },
   "url": "https://github.com/pytsite/plugin-telegram",
   "author": {
@@ -15,7 +15,5 @@
   "requires": {
     "packages": [
       "requests"
-    ],
-    "plugins": []
-  }
+    ]}
 }
