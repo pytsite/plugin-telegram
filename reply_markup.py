@@ -77,22 +77,22 @@ class Keyboard(types.JSONable):
             buttons = [[]]
 
         if not isinstance(buttons, list):
-            raise TypeError('List of lists of KeyboardButton expected, got {}'.format(type(buttons)))
+            raise TypeError('List expected, got {}'.format(type(buttons)))
 
         for row in buttons:
             if not isinstance(row, list):
-                raise TypeError('List of KeyboardButton expected, got {}'.format(type(row)))
+                raise TypeError('List expected, got {}'.format(type(row)))
 
             for btn in row:
                 if not isinstance(btn, _expected_button_type):
                     raise TypeError("{} expected, got {}".format(_expected_button_type, type(btn)))
 
         self._expected_button_type = _expected_button_type
-        self._buttons = buttons
+        self._rows = buttons
 
     def __len__(self):
         r = 0
-        for row in self._buttons:
+        for row in self._rows:
             r += len(row)
 
         return r
@@ -100,31 +100,34 @@ class Keyboard(types.JSONable):
     def append_row(self):
         """Append a row
         """
-        self._buttons.append([])
+        self._rows.append([])
 
         return self
 
-    def append_button(self, button: AbstractKeyboardButton, row: int = None):
+    def append_button(self, button: AbstractKeyboardButton, row_num: int = None):
         """Append a button to a row
         """
+        if not self._rows and row_num is None:
+            self.append_row()
+
         if not isinstance(button, self._expected_button_type):
             raise TypeError("{} expected, got {}".format(self._expected_button_type, type(button)))
 
-        if row is None:
-            row = len(self._buttons) - 1
+        if row_num is None:
+            row_num = len(self._rows) - 1
 
         try:
-            self._buttons[row].append(button)
+            self._rows[row_num].append(button)
 
         except IndexError:
-            raise IndexError('There is no row at index {}'.format(row))
+            raise IndexError('There is no row at index {}'.format(row_num))
 
         return self
 
     def as_jsonable(self) -> list:
         r = []
 
-        for row in self._buttons:
+        for row in self._rows:
             r_row = []
 
             for btn in row:
@@ -165,6 +168,9 @@ class ReplyKeyboardMarkup(ReplyMarkup):
         self._one_time_keyboard = one_time_keyboard
         self._selective = selective
 
+    def __len__(self):
+        return len(self._keyboard)
+
     def as_jsonable(self) -> dict:
         return {
             'keyboard': self._keyboard.as_jsonable(),
@@ -182,6 +188,9 @@ class InlineKeyboardMarkup(ReplyMarkup):
 
     def __init__(self, inline_keyboard: Keyboard):
         self._inline_keyboard = inline_keyboard
+
+    def __len__(self):
+        return len(self._inline_keyboard)
 
     def as_jsonable(self) -> dict:
         return {

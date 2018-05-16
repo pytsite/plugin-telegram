@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 0.5 (2018-05-16)
+
+- New property `Bot.vars` added.
+- New method `Bot.answer_callback_query()` added.
+
+
 ### 0.4 (2018-02-04)
 
 New API function added: `unregister_bot()`.

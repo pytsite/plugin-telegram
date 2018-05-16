@@ -1,6 +1,6 @@
 {
   "name": "telegram",
-  "version": "0.4",
+  "version": "0.5",
   "description": {
     "en": "Telegram",
     "ru": "Telegram",
@@ -15,5 +15,6 @@
   "requires": {
     "packages": [
       "requests"
-    ]}
+    ]
+  }
 }

@@ -1,19 +1,22 @@
 """PytSite Telegram Bot API
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 import requests as _requests
 from typing import Type as _Type, Dict as _Dict, Tuple as _Tuple
 from pytsite import util as _util, router as _router
 from . import _bot, error as _error
 
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
+# Registered bots
 _BOTS = {}  # type: _Dict[str, _Tuple[_Type, str]]
 
 
 def register_bot(token: str, bot_class: _Type, set_webhook: bool = True, max_connections: int = 40,
                  allowed_updates: list = None):
+    """Register a new bot
+    """
     if not token:
         raise ValueError("Bot's token is empty")
 
@@ -34,6 +37,8 @@ def register_bot(token: str, bot_class: _Type, set_webhook: bool = True, max_con
 
 
 def unregister_bot(token: str):
+    """Unregister a bot
+    """
     if not token:
         raise ValueError("Bot's token is not registered")
 
@@ -45,7 +50,7 @@ def unregister_bot(token: str):
 
 
 def dispense_bot(uid: str) -> _bot.Bot:
-    """Dispense a bot
+    """Instantiate a bot
     """
     try:
         return _BOTS[uid][0](_BOTS[uid][1])
@@ -55,6 +60,8 @@ def dispense_bot(uid: str) -> _bot.Bot:
 
 
 def request(bot_token: str, endpoint: str, params: dict = None, data: dict = None, method: str = 'GET'):
+    """Perform a request to the Telegram API
+    """
     url = 'https://api.telegram.org/bot{}/{}'.format(bot_token, endpoint)
     resp = _requests.request(method, url, params=params, data=data)
 

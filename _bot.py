@@ -1,14 +1,14 @@
 """PytSite Telegram Bot
 """
-import json as _json
-from typing import Union as _Union
-from werkzeug.utils import cached_property as _cached_property
-from pytsite import cache as _cache, reg as _reg, logger as _logger, lang as _lang, util as _util
-from . import _api, types as _types, reply_markup as _reply_markup, error as _error
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+import json as _json
+from typing import Union as _Union, Mapping as _Mapping
+from werkzeug.utils import cached_property as _cached_property
+from pytsite import cache as _cache, reg as _reg, logger as _logger, lang as _lang, util as _util
+from . import _api, types as _types, reply_markup as _reply_markup, error as _error
 
 _cache_pool = _cache.create_pool('telegram.bot_state')
 
@@ -93,6 +93,12 @@ class Bot:
         """Set current command's step
         """
         self.set_var('_command_{}_step'.format(self.command_name), value)
+
+    @property
+    def vars(self) -> _Mapping:
+        """Get state variables
+        """
+        return _cache_pool.get_hash('{}.{}'.format(self._id, self.chat.id))
 
     def set_command_alias(self, command: str, alias: str):
         if alias in self._command_aliases:
@@ -366,6 +372,20 @@ class Bot:
             'message_id': message_id,
             'inline_message_id': inline_message_id,
             'reply_markup': _json.dumps(reply_markup.as_jsonable()) if reply_markup else '',
+        })
+
+    def answer_callback_query(self, callback_query_id: str, text: str = None, show_alert: bool = False, url: str = None,
+                              cache_time: int = 0):
+        """Send answer to callback query sent from inline keyboards
+
+        https://core.telegram.org/bots/api#answercallbackquery
+        """
+        return self._request('answerCallbackQuery', {
+            'callback_query_id': callback_query_id,
+            'text': text,
+            'show_alert': show_alert,
+            'url': url,
+            'cache_time': cache_time,
         })
 
     def delete_message(self, chat_id: _Union[int, str], message_id: int):
