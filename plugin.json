@@ -1,6 +1,6 @@
 {
   "name": "telegram",
-  "version": "0.5",
+  "version": "0.6",
   "description": {
     "en": "Telegram",
     "ru": "Telegram",
@@ -8,13 +8,14 @@
   },
   "url": "https://github.com/pytsite/plugin-telegram",
   "author": {
-    "name": "Alexander Shepetko",
+    "name": "Oleksandr Shepetko",
     "email": "a@shepetko.com",
     "url": "https://shepetko.com"
   },
   "requires": {
-    "packages": [
-      "requests"
-    ]
+    "pytsite": "8.x",
+    "packages": {
+      "requests": "2.x"
+    }
   }
 }

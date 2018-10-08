@@ -1,11 +1,11 @@
 """PytSite Telegram Bot API Errors
 """
-from requests import Response as _RequestResponse
-from .reply_markup import ReplyMarkup as _ReplyMarkup
-
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from requests import Response as _RequestResponse
+from .reply_markup import ReplyMarkup as _ReplyMarkup
 
 
 class Error(Exception):

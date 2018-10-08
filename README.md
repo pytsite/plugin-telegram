@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 0.6 (2018-10-08)
+
+Support of `pytsite-8.x`.
+
+
 ### 0.5 (2018-05-16)
 
 - New property `Bot.vars` added.

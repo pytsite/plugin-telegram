@@ -1,12 +1,12 @@
 """PytSite Telegram Bot Types
 """
+__author__ = 'Oleksandr Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from typing import Optional as _Optional, Union as _Union, Type as _Type
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from datetime import datetime as _datetime
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 
 class JSONable(_ABC):

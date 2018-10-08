@@ -1,6 +1,6 @@
 """PytSite Telegram Bot API Plugin
 """
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
@@ -10,13 +10,7 @@ from ._api import register_bot, unregister_bot, dispense_bot
 from ._bot import Bot
 
 
-def plugin_load():
-    from pytsite import lang
-
-    lang.register_package(__name__)
-
-
-def plugin_load_uwsgi():
+def plugin_load_wsgi():
     from pytsite import router
     from . import _controllers
 

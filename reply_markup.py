@@ -1,12 +1,12 @@
 """PytSite Telegram Plugin Reply Markups
 """
+__author__ = 'Oleksandr Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from typing import Type as _Type, List as _List
 from abc import abstractmethod as _abstractmethod
 from . import types
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 
 class AbstractKeyboardButton(types.JSONable):
