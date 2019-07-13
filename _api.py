@@ -5,22 +5,22 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import requests as _requests
-from typing import Type as _Type, Dict as _Dict, Tuple as _Tuple
-from pytsite import util as _util, router as _router
+from typing import Type, Dict, Tuple
+from pytsite import util, router
 from . import _bot, error as _error
 
 # Registered bots
-_BOTS = {}  # type: _Dict[str, _Tuple[_Type, str]]
+_BOTS = {}  # type: Dict[str, Tuple[Type, str]]
 
 
-def register_bot(token: str, bot_class: _Type, set_webhook: bool = True, max_connections: int = 40,
+def register_bot(token: str, bot_class: Type, set_webhook: bool = True, max_connections: int = 40,
                  allowed_updates: list = None):
     """Register a new bot
     """
     if not token:
         raise ValueError("Bot's token is empty")
 
-    uid = _util.md5_hex_digest(_router.server_name() + token)
+    uid = util.md5_hex_digest(router.server_name() + token)
     if uid in _BOTS:
         raise ValueError("Bot with token '{}' is already registered".format(token))
 
@@ -42,7 +42,7 @@ def unregister_bot(token: str):
     if not token:
         raise ValueError("Bot's token is not registered")
 
-    uid = _util.md5_hex_digest(_router.server_name() + token)
+    uid = util.md5_hex_digest(router.server_name() + token)
     if uid in _BOTS:
         if _BOTS[uid][2]:
             _delete_webhook(token)
@@ -76,7 +76,7 @@ def _set_webhook(bot_token: str, bot_uid: str, max_connections: int = 40, allowe
 
     https://core.telegram.org/bots/api#setwebhook
     """
-    hook_url = _router.rule_url('telegram@bot_hook', {'bot_uid': bot_uid}, scheme='https')
+    hook_url = router.rule_url('telegram@bot_hook', {'bot_uid': bot_uid}, scheme='https')
     if _get_webhook_info(bot_token)['url'] != hook_url:
         try:
             return request(bot_token, 'setWebhook', {

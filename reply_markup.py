@@ -4,8 +4,8 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Type as _Type, List as _List
-from abc import abstractmethod as _abstractmethod
+from typing import Type, List
+from abc import abstractmethod
 from . import types
 
 
@@ -70,7 +70,7 @@ class Keyboard(types.JSONable):
     """Normal Keyboard Buttons Container
     """
 
-    def __init__(self, buttons: _List[_List[AbstractKeyboardButton]] = None, _expected_button_type: _Type = Button):
+    def __init__(self, buttons: List[List[AbstractKeyboardButton]] = None, _expected_button_type: Type = Button):
         """Init
         """
         if buttons is None:
@@ -142,7 +142,7 @@ class InlineKeyboard(Keyboard):
     """Inline Keyboard Buttons Container
     """
 
-    def __init__(self, buttons: _List[_List] = None):
+    def __init__(self, buttons: List[List] = None):
         super().__init__(buttons, InlineButton)
 
 
@@ -150,7 +150,7 @@ class ReplyMarkup(types.JSONable):
     """Base Class for Reply Markup
     """
 
-    @_abstractmethod
+    @abstractmethod
     def as_jsonable(self):
         pass
 

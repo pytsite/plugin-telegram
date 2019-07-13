@@ -4,8 +4,8 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from requests import Response as _RequestResponse
-from .reply_markup import ReplyMarkup as _ReplyMarkup
+from requests import Response
+from .reply_markup import ReplyMarkup
 
 
 class Error(Exception):
@@ -13,7 +13,7 @@ class Error(Exception):
 
 
 class CommandExecutionError(Error):
-    def __init__(self, msg: str, reply_markup: _ReplyMarkup = None):
+    def __init__(self, msg: str, reply_markup: ReplyMarkup = None):
         self.msg = msg
         self.reply_markup = reply_markup
 
@@ -22,13 +22,13 @@ class CommandExecutionError(Error):
 
 
 class ApiRequestError(Error):
-    def __init__(self, method: str, url: str, response: _RequestResponse):
+    def __init__(self, method: str, url: str, response: Response):
         self._method = method
         self._url = url
         self._response = response
 
     @property
-    def response(self) -> _RequestResponse:
+    def response(self) -> Response:
         return self._response
 
     def __str__(self) -> str:
